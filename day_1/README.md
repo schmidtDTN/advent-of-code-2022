@@ -1,13 +1,17 @@
 # APL Solutions
+
 ## Part 1
+
 ### APL Single-line solution
+
 ```
-⌈/+/¨{⍵~¯1}¨((¯1,{⍵≡'':-1 ⋄ ⍎⍵}¨(⊃⎕NGET'INPUT_TXT_HERE'1))∊¯1)⊂1,{⍵≡'':-1 ⋄ ⍎⍵}¨(⊃⎕NGET'INPUT_TXT_HERE'1)
+⌈/+/¨{⍵~¯1}¨((¯1,{⍵≡'':-1 ⋄ ⍎⍵}¨(⊃⎕NGET'INPUT_FILE_PATH_HERE'1))∊¯1)⊂1,{⍵≡'':-1 ⋄ ⍎⍵}¨(⊃⎕NGET'INPUT_FILE_PATH_HERE'1)
 ```
 
 ### Multi-line, slightly more legible version
+
 ```
-input←⊃⎕NGET'INPUT_TXT_HERE'1
+input←⊃⎕NGET'INPUT_FILE_PATH_HERE'1
 flatten←{⍵≡'':-1 ⋄ ⍎⍵}
 getFlatInput←flatten¨input
 maskableFlatInput←¯1,getFlatInput
