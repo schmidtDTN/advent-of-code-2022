@@ -1,79 +1,145 @@
 import math, os, numpy
 
-def parse_input(input):
-    tree_map = []
-    for input_row in input.splitlines():
-        curr_row = []
-        for cell in input_row:
-            curr_row.append(cell)
-        tree_map.append(curr_row)
-    return tree_map
+# def part_1(input):
+    # current_head_pos = (0,0) # x, y
+    # current_tail_pos = (0,0) # x, y
+    # head_path = [current_head_pos]
+    # tail_path = [current_tail_pos]
+    # for row in input.splitlines():
+    #     direction = row.split(' ')[0]
+    #     magnitude = int(row.split(' ')[1])
+    #     if direction == 'R':
+    #         x_change = 1
+    #         y_change = 0
+    #     elif direction == 'L':
+    #         x_change = -1
+    #         y_change = 0
+    #     elif direction == 'U':
+    #         x_change = 0
+    #         y_change = 1
+    #     elif direction == 'D':
+    #         x_change = 0
+    #         y_change = -1
+    #     for _ in range(magnitude):
+    #         head_x = current_head_pos[0] + x_change
+    #         head_y = current_head_pos[1] + y_change
+    #         tail_x = current_tail_pos[0]
+    #         tail_y = current_tail_pos[1]
+    #         new_head_pos = (head_x, head_y)
+    #         head_path.append(new_head_pos)
+    #         current_head_pos = new_head_pos
+    #         # head is to the right by two
+    #         if head_x - tail_x == 2:
+    #             tail_x += 1
+    #             if head_y - tail_y == 1:
+    #                 tail_y += 1
+    #             if head_y - tail_y == -1:
+    #                 tail_y -= 1
+    #         if head_x - tail_x == -2:
+    #             tail_x -= 1
+    #             if head_y - tail_y == 1:
+    #                 tail_y += 1
+    #             if head_y - tail_y == -1:
+    #                 tail_y -= 1
+    #         if head_y - tail_y == 2:
+    #             tail_y += 1
+    #             if head_x - tail_x == 1:
+    #                 tail_x += 1
+    #             if head_x - tail_x == -1:
+    #                 tail_x -= 1
+    #         if head_y - tail_y == -2:
+    #             tail_y -= 1
+    #             if head_x - tail_x == 1:
+    #                 tail_x += 1
+    #             if head_x - tail_x == -1:
+    #                 tail_x -= 1
+    #         new_tail_pos = (tail_x, tail_y)
+    #         tail_path.append(new_tail_pos)
+    #         current_tail_pos = new_tail_pos
+    # distinct_tail_positions = set(tail_path)
+    # return len(distinct_tail_positions)
 
-def part_1(tree_map):
-    visible_trees = 0
-    grid_length = len(tree_map[0])
-    grid_height = len(tree_map)
-    visibility_row = [0] * grid_length
-    visibility_map = []
-    for i in range(0, grid_height):
-        visibility_map.append(visibility_row.copy())
-    transposed_map = numpy.transpose(tree_map)
-    for row_idx, row in enumerate(tree_map):
-        for col_idx, cell in enumerate(row):
-            if col_idx == 0 or row_idx == 0 or col_idx == grid_length - 1 or row_idx == grid_height - 1:
-                visibility_map[row_idx][col_idx] = 1
-                visible_trees += 1
-            else:
-                cell = int(cell)
-                column = transposed_map[col_idx]
-                # visibility check
-                left_highest = int(max(row[:col_idx]))
-                right_highest = int(max(row[col_idx + 1:]))
-                up_highest = int(max(column[:row_idx]))
-                down_highest = int(max(column[row_idx + 1:]))
-                if cell > left_highest or cell > right_highest or cell > up_highest or cell > down_highest:
-                    visibility_map[row_idx][col_idx] = 1
-                    visible_trees += 1
-    
-    return visible_trees
+
+knot_paths = {}
+knot_pos = {}
+
+def calculate_knot_path(prev_knot_id, curr_knot_id):
+    # tail_x = current_tail_pos[0]
+    # this_knot_x = curr_knot_pos[0]
+    # this_knot_y = curr_knot_pos[1]
+    prev_knot_x = knot_pos[prev_knot_id][0]
+    prev_knot_y = knot_pos[prev_knot_id][1]
+    this_knot_x = knot_pos[curr_knot_id][0]
+    this_knot_y = knot_pos[curr_knot_id][1]
     
 
-def part_2(tree_map):
-    max_scenic_score = 0
-    transposed_map = numpy.transpose(tree_map)
-    for row_idx, row in enumerate(tree_map):
-        for col_idx, cell in enumerate(row):
-            cell = int(cell)
-            column = transposed_map[col_idx]
-            reversed_row = list(reversed(row))
-            reversed_column = list(reversed(column))
-            # scenic check
-            left_view = 0
-            right_view = 0
-            up_view = 0
-            down_view = 0
-            for left in reversed_row[len(column) - col_idx:]:
-                left_view += 1
-                if int(left) >= cell:
-                    break
-            for right in row[col_idx + 1:]:
-                right_view += 1
-                if int(right) >= cell:
-                    break
-            for up in reversed_column[len(row) - row_idx:]:
-                up_view += 1
-                if int(up) >= cell:
-                    break
-            for down in column[row_idx + 1:]:
-                down_view += 1
-                if int(down) >= cell:
-                    break
+    # head is to the right by two
+    if prev_knot_x - this_knot_x == 2:
+        this_knot_x += 1
+        if prev_knot_y - this_knot_y == 1:
+            this_knot_y += 1
+        if prev_knot_y - this_knot_y == -1:
+            this_knot_y -= 1
+    if prev_knot_x - this_knot_x == -2:
+        this_knot_x -= 1
+        if prev_knot_y - this_knot_y == 1:
+            this_knot_y += 1
+        if prev_knot_y - this_knot_y == -1:
+            this_knot_y -= 1
+    if prev_knot_y - this_knot_y == 2:
+        this_knot_y += 1
+        if prev_knot_x - this_knot_x == 1:
+            this_knot_x += 1
+        if prev_knot_x - this_knot_x == -1:
+            this_knot_x -= 1
+    if prev_knot_y - this_knot_y == -2:
+        this_knot_y -= 1
+        if prev_knot_x - this_knot_x == 1:
+            this_knot_x += 1
+        if prev_knot_x - this_knot_x == -1:
+            this_knot_x -= 1
+    return (this_knot_x, this_knot_y)
 
-            curr_scenic_score = left_view * right_view * up_view * down_view
-            if curr_scenic_score > max_scenic_score:
-                max_scenic_score = curr_scenic_score
-    
-    return max_scenic_score
+def solve(input, knot_count):
+    starting_pos = (0,0)
+    for i in range(knot_count + 1):
+        knot_pos.update({i: starting_pos})
+        knot_paths.update({i: [starting_pos]})
+        # knot_pos.update({: starting_pos})
+
+    # knot_paths.update({0: [starting_pos]})
+    # knot_paths.update({1: [starting_pos]})
+    for row in input.splitlines():
+        direction = row.split(' ')[0]
+        magnitude = int(row.split(' ')[1])
+        if direction == 'R':
+            x_change = 1
+            y_change = 0
+        elif direction == 'L':
+            x_change = -1
+            y_change = 0
+        elif direction == 'U':
+            x_change = 0
+            y_change = 1
+        elif direction == 'D':
+            x_change = 0
+            y_change = -1
+        for _ in range(magnitude):
+            head_x = knot_pos[0][0] + x_change
+            head_y = knot_pos[0][1] + y_change
+            new_head_pos = (head_x, head_y)
+
+            knot_pos.update({0: new_head_pos})
+            knot_paths[0].append(new_head_pos)
+
+            for curr_knot in range(1, knot_count + 1):
+                (tail_x, tail_y) = calculate_knot_path(curr_knot - 1, curr_knot)
+                new_tail_pos = (tail_x, tail_y)
+                knot_pos.update({curr_knot: new_tail_pos})
+                knot_paths[curr_knot].append(new_tail_pos)
+            
+    distinct_tail_positions = set(knot_paths[knot_count])
+    return len(distinct_tail_positions)
 
 
 def main():
@@ -82,9 +148,9 @@ def main():
     filename = os.path.join(dir, 'input.txt')
     file = open(filename)
     input = file.read()
-    tree_map = parse_input(input)
-    part_1_solution = part_1(tree_map)
-    part_2_solution = part_2(tree_map)
+    part_1_solution = solve(input, 1)
+    # Part 2 solution works on the sample input but not the real input :(
+    part_2_solution = solve(input, 9)
 
     print("Part 1: " +  str(part_1_solution))
     print("Part 2: " +  str(part_2_solution))
